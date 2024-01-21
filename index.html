@@ -12,3 +12,49 @@ Ceci est mon premier essaie
 </body>
 
 </html>
+**
+ * This script takes the selected range of a table and creates a new line chart from it.
+ */
+function main(workbook: ExcelScript.Workbook) {
+  // Get the selected range.
+  let selectedRange = workbook.getSelectedRange();
+  let selectedSheet = workbook.getActiveWorksheet();
+
+  // Find the table that is encompassing the selected range
+  let tablesInRange = selectedRange.getTables();
+
+  if (tablesInRange.length !== 1) {
+    console.log("Please select a single table.");
+    return;
+  }
+  let table = selectedRange.getTables()[0];
+  console.log(`${table.getName()} found at ${selectedRange.getAddress()}.`);
+
+  const chart = selectedSheet.addChart(
+    ExcelScript.ChartType.line,
+    table.getRange()
+  );
+  console.log("Added line chart.");
+
+  chart.getTitle().setText(table.getName());
+  console.log("Changed name on chart.");
+
+  // Set X-Axis label to the header of the first column in the table
+  chart.getAxes().getCategoryAxis().getTitle().setVisible(true);
+  chart
+    .getAxes()
+    .getCategoryAxis()
+    .getTitle()
+    .setText(table.getColumnById(1).getName());
+  console.log(`Set X-Axis Label to ${table.getColumnById(1).getName()}`);
+
+  chart.getAxes().getValueAxis().getTitle().setVisible(true);
+  chart.getAxes().getValueAxis().getTitle().setText("Y-Axis label goes here");
+  console.log("Set Y-Axis Label.");
+
+  chart.getSeries()[1].setMarkerStyle(ExcelScript.ChartMarkerStyle.square);
+  console.log("Added square markers to data points on first line.");
+
+  chart.getAxes().getCategoryAxis().getMajorGridlines().setVisible(true);
+  console.log("Added major gridlines on the X Axis.");
+}
